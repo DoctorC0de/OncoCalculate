@@ -1,0 +1,236 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    box-sizing: border-box;
+  }
+
+  html, body, #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #0a0f1a;
+    color: #e2e8f0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    user-select: none;
+    -webkit-user-select: none;
+    overflow-x: hidden;
+  }
+
+  input, select, textarea {
+    user-select: text;
+    -webkit-user-select: text;
+    font-size: 16px !important; /* Prevent WebView auto-zoom on focus */
+  }
+}
+
+@layer components {
+  /* ===== Material 3 Surface Styles ===== */
+  .m3-surface {
+    background-color: #111827;
+  }
+
+  .m3-surface-container {
+    background-color: #1a2236;
+  }
+
+  .m3-surface-container-high {
+    background-color: #222d42;
+  }
+
+  /* ===== Material 3 Top App Bar ===== */
+  .m3-top-app-bar {
+    background-color: rgba(10, 15, 26, 0.92);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  /* ===== Material 3 Bottom Navigation Bar ===== */
+  .m3-bottom-nav {
+    background-color: rgba(17, 24, 39, 0.95);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px);
+  }
+
+  /* Material 3 Active Pill Indicator */
+  .m3-nav-indicator {
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(2, 132, 199, 0.15));
+    border-radius: 16px;
+    padding: 4px 20px;
+  }
+
+  /* ===== Material 3 Card ===== */
+  .m3-card {
+    background-color: #1a2236;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.2s ease;
+  }
+
+  .m3-card:active {
+    transform: scale(0.98);
+    border-color: rgba(14, 165, 233, 0.3);
+  }
+
+  /* ===== Material 3 Elevated Card ===== */
+  .m3-card-elevated {
+    background-color: #1a2236;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+
+  /* ===== Material 3 Outlined Input ===== */
+  .m3-input {
+    background-color: rgba(10, 15, 26, 0.8);
+    border: 1.5px solid rgba(148, 163, 184, 0.25);
+    border-radius: 12px;
+    padding: 14px 16px;
+    color: #e2e8f0;
+    font-size: 16px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    min-height: 48px;
+    width: 100%;
+  }
+
+  .m3-input:focus {
+    outline: none;
+    border-color: #0ea5e9;
+    box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.15);
+  }
+
+  .m3-input::placeholder {
+    color: #64748b;
+  }
+
+  /* ===== Material 3 Filter Chip ===== */
+  .m3-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    background: transparent;
+    color: #94a3b8;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    min-height: 36px;
+  }
+
+  .m3-chip-active {
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    color: #ffffff;
+    border-color: transparent;
+    box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
+    font-weight: 600;
+  }
+
+  /* ===== Touch Ripple Effect ===== */
+  .touch-ripple {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .touch-ripple:active::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: inherit;
+  }
+
+  /* ===== Button Styles ===== */
+  .m3-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: transform 0.1s ease, opacity 0.1s ease;
+    min-height: 48px;
+    min-width: 48px;
+  }
+
+  .m3-btn:active {
+    transform: scale(0.96);
+    opacity: 0.9;
+  }
+
+  /* ===== Result Panel ===== */
+  .result-panel {
+    background: linear-gradient(145deg, #1a2236, #111827);
+    border: 1.5px solid rgba(14, 165, 233, 0.3);
+    border-radius: 20px;
+    box-shadow: 0 4px 24px rgba(14, 165, 233, 0.08), 0 0 0 1px rgba(14, 165, 233, 0.05);
+  }
+
+  /* ===== Status Badge Styles ===== */
+  .badge-danger {
+    background-color: rgba(244, 63, 94, 0.12);
+    color: #fb7185;
+    border: 1px solid rgba(244, 63, 94, 0.3);
+  }
+
+  .badge-warning {
+    background-color: rgba(245, 158, 11, 0.12);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+  }
+
+  .badge-success {
+    background-color: rgba(16, 185, 129, 0.12);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+  }
+
+  .badge-info {
+    background-color: rgba(14, 165, 233, 0.12);
+    color: #38bdf8;
+    border: 1px solid rgba(14, 165, 233, 0.3);
+  }
+}
+
+@layer utilities {
+  /* Hide scrollbar */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Safe area padding */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+}
+
+/* Global thin scrollbar */
+::-webkit-scrollbar {
+  width: 3px;
+  height: 3px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 9999px;
+}

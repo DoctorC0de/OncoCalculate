@@ -1,0 +1,11 @@
+{
+  "appId": "com.onco.calculate",
+  "appName": "OncoCalculate",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "backgroundColor": "#0f172a"
+  }
+}
