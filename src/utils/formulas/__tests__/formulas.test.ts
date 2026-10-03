@@ -1,10 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { bsaCalculator, calvertCalculator, gfrCalculator } from '../chemo';
+import { bsaCalculator, calvertCalculator, gfrCalculator, ibwCalculator } from '../chemo';
 import { ancCalculator, correctedCalciumCalculator } from '../hematology';
 import { recistCalculator } from '../recist';
-import { albiCalculator } from '../organ';
-import { khoranaCalculator } from '../riskScores';
+import { albiCalculator, meldCalculator } from '../organ';
+import { khoranaCalculator, cisneCalculator } from '../riskScores';
 import { opioidCalculator } from '../conversions';
+import { ecogKpsCalculator } from '../performance';
+import { flipiCalculator, rissCalculator } from '../staging';
 
 describe('OncoCalculate Formulas Unit Tests', () => {
   it('BSA Mosteller formula calculates correctly', () => {
@@ -26,7 +28,6 @@ describe('OncoCalculate Formulas Unit Tests', () => {
 
   it('Cockcroft-Gault GFR calculates correctly with SI unit (umol/L)', () => {
     // Male 60yo, 65kg, SCr = 79.6 umol/L (~0.9 mg/dL)
-    // CrCl = (140-60)*65 / (72 * 0.9) = 5200 / 64.8 = 80.2 mL/min
     const res = gfrCalculator.calculate(
       { gender: 'male', age: 60, weight: 65, scr: 79.6 },
       { weight: 'kg', scr: 'umol' }
@@ -50,23 +51,79 @@ describe('OncoCalculate Formulas Unit Tests', () => {
   });
 
   it('RECIST 1.1 determines PR when reduction >= 30%', () => {
-    // Baseline: 50mm, Current: 30mm -> -40% -> PR
     const res = recistCalculator.calculate({ baselineSld: 50, nadirSld: 50, currentSld: 30, hasNewLesion: 'no' }, {});
     expect(res.value).toBe('PR');
   });
 
   it('ALBI score calculates grade correctly', () => {
-    // Bili 20 umol/L, Alb 40 g/L -> log10(20)*0.66 + 40*-0.085 = 1.301*0.66 - 3.40 = 0.858 - 3.40 = -2.54 -> Grade 2
     const res = albiCalculator.calculate({ bilirubin: 20, albumin: 40 }, { bilirubin: 'umol', albumin: 'gL' });
     expect(res.badge?.text).toBe('Grade 2');
   });
 
   it('Opioid MEDD converts oral oxycodone to oral morphine with 25% reduction', () => {
-    // 40mg Oxycodone / day -> MEDD = 40 * 1.5 = 60mg Morphine. Reduced by 25% -> 45mg Morphine target.
     const res = opioidCalculator.calculate(
       { sourceDrug: 'oral_oxycodone', sourceDose: 40, targetDrug: 'oral_morphine', crossReduction: '25' },
       {}
     );
     expect(res.value).toBe('45.0');
+  });
+
+  it('IBW & AdjBW calculates Devine formula and detects overweight', () => {
+    // Male 170cm, 80kg -> IBW = 50 + 0.9055*(170-152.4) = 65.9kg -> Overweight > 1.2*IBW
+    const res = ibwCalculator.calculate({ gender: 'male', height: 170, weight: 80 }, { height: 'cm', weight: 'kg' });
+    expect(Number(res.value)).toBeGreaterThan(65);
+    expect(res.badge?.text).toContain('超重');
+
+    // 95kg -> Obese
+    const resObese = ibwCalculator.calculate({ gender: 'male', height: 170, weight: 95 }, { height: 'cm', weight: 'kg' });
+    expect(resObese.badge?.text).toContain('肥胖');
+  });
+
+  it('MELD-Na calculates correct score range', () => {
+    const res = meldCalculator.calculate(
+      { bilirubin: 25.6, inr: 1.2, creatinine: 80, sodium: 135, dialysis: 'no' },
+      { bilirubin: 'umol', creatinine: 'umol' }
+    );
+    expect(Number(res.value)).toBeGreaterThanOrEqual(6);
+    expect(Number(res.value)).toBeLessThanOrEqual(40);
+  });
+
+  it('CISNE score stratifies low risk vs high risk', () => {
+    const low = cisneCalculator.calculate(
+      { ecog: '0', hyperglycemia: '0', copd: '0', cardio: '0', mucositis: '0', monocytes: '0' },
+      {}
+    );
+    expect(low.value).toBe(0);
+    expect(low.badge?.text).toContain('低危');
+
+    const high = cisneCalculator.calculate(
+      { ecog: '2', hyperglycemia: '2', copd: '1', cardio: '0', mucositis: '0', monocytes: '0' },
+      {}
+    );
+    expect(high.value).toBe(5);
+    expect(high.badge?.text).toContain('高危');
+  });
+
+  it('ECOG vs KPS maps correctly', () => {
+    const res = ecogKpsCalculator.calculate({ ecog_score: '1', treatment_intent: 'systemic_chemo' }, {});
+    expect(res.value).toBe('ECOG 1');
+    expect(res.unit).toContain('KPS 80 - 70%');
+  });
+
+  it('FLIPI score calculates risk group', () => {
+    const res = flipiCalculator.calculate(
+      { age: '1', stage: '1', hgb: '1', nodal: '0', ldh: '0' },
+      {}
+    );
+    expect(res.value).toBe('3 分');
+    expect(res.badge?.text).toContain('高危组');
+  });
+
+  it('R-ISS stages multiple myeloma correctly', () => {
+    const stage1 = rissCalculator.calculate(
+      { iss_stage: 'I', cytogenetics: 'standard', ldh: 'normal' },
+      {}
+    );
+    expect(stage1.value).toContain('R-ISS I');
   });
 });

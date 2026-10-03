@@ -59,6 +59,28 @@ pub struct OpioidResult {
     pub target_dose: f64,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct IbwResult {
+    pub ibw_kg: f64,
+    pub adj_bw_kg: f64,
+    pub bmi: f64,
+    pub is_overweight: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MeldResult {
+    pub base_meld: u32,
+    pub meld_na: u32,
+    pub mortality_90d_pct: f64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CisneResult {
+    pub score: u32,
+    pub risk_class: u8, // 1, 2, 3
+    pub is_low_risk: bool,
+}
+
 /// Calculate Body Surface Area (BSA) using 5 classical formulas
 pub fn calculate_bsa(height_cm: f64, weight_kg: f64) -> Option<BsaResult> {
     if height_cm <= 0.0 || weight_kg <= 0.0 {
@@ -264,6 +286,94 @@ pub fn calculate_opioid_medd(source: &str, dose: f64, target: &str, reduction_pc
     })
 }
 
+/// Calculate Ideal Body Weight (IBW) & Adjusted Body Weight (AdjBW)
+pub fn calculate_ibw_adjbw(height_cm: f64, actual_weight_kg: f64, is_female: bool) -> Option<IbwResult> {
+    if height_cm <= 0.0 || actual_weight_kg <= 0.0 {
+        return None;
+    }
+
+    let base_ibw = if is_female { 45.5 } else { 50.0 };
+    let ibw = if height_cm > 152.4 {
+        base_ibw + 0.9055 * (height_cm - 152.4)
+    } else {
+        base_ibw
+    };
+
+    let is_overweight = actual_weight_kg > 1.2 * ibw;
+    let adj_bw = ibw + 0.4 * (actual_weight_kg - ibw);
+    let height_m = height_cm / 100.0;
+    let bmi = actual_weight_kg / (height_m * height_m);
+
+    Some(IbwResult {
+        ibw_kg: ibw,
+        adj_bw_kg: adj_bw,
+        bmi,
+        is_overweight,
+    })
+}
+
+/// Calculate MELD & MELD-Na
+pub fn calculate_meld_na(bili_mg_dl: f64, inr: f64, cr_mg_dl: f64, na_mmol: f64, is_dialysis: bool) -> Option<MeldResult> {
+    let mut cr = if is_dialysis { 4.0 } else { cr_mg_dl };
+    cr = cr.max(1.0).min(4.0);
+    let bili = bili_mg_dl.max(1.0);
+    let inr_val = inr.max(1.0);
+
+    let raw_meld = 9.57 * cr.ln() + 3.78 * bili.ln() + 11.2 * inr_val.ln() + 6.43;
+    let base_meld = (raw_meld.round() as u32).clamp(6, 40);
+
+    let mut final_meld_na = base_meld;
+    if base_meld > 11 {
+        let bound_na = na_mmol.clamp(125.0, 137.0);
+        let na_term = 137.0 - bound_na;
+        let adj = (base_meld as f64) + 1.32 * na_term - 0.033 * (base_meld as f64) * na_term;
+        final_meld_na = (adj.round() as u32).clamp(6, 40);
+    }
+
+    let mortality_90d_pct = if final_meld_na >= 40 {
+        71.3
+    } else if final_meld_na >= 30 {
+        52.6
+    } else if final_meld_na >= 20 {
+        19.6
+    } else if final_meld_na >= 10 {
+        6.0
+    } else {
+        1.9
+    };
+
+    Some(MeldResult {
+        base_meld,
+        meld_na: final_meld_na,
+        mortality_90d_pct,
+    })
+}
+
+/// Calculate CISNE Score
+pub fn calculate_cisne(ecog_ge2: bool, hyperglycemia: bool, copd: bool, cardio: bool, mucositis_ge2: bool, monocytes_lt02: bool) -> CisneResult {
+    let mut score = 0u32;
+    if ecog_ge2 { score += 2; }
+    if hyperglycemia { score += 2; }
+    if copd { score += 1; }
+    if cardio { score += 1; }
+    if mucositis_ge2 { score += 1; }
+    if monocytes_lt02 { score += 1; }
+
+    let (risk_class, is_low_risk) = if score == 0 {
+        (1, true)
+    } else if score <= 2 {
+        (2, false)
+    } else {
+        (3, false)
+    };
+
+    CisneResult {
+        score,
+        risk_class,
+        is_low_risk,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -285,5 +395,29 @@ mod tests {
     fn test_recist_pr() {
         let res = calculate_recist(50.0, 50.0, 30.0, false).unwrap();
         assert_eq!(res.category, "PR");
+    }
+
+    #[test]
+    fn test_ibw() {
+        let res = calculate_ibw_adjbw(170.0, 80.0, false).unwrap();
+        assert!((res.ibw_kg - 65.9).abs() < 0.5);
+        assert!(res.is_overweight);
+    }
+
+    #[test]
+    fn test_cisne() {
+        let low = calculate_cisne(false, false, false, false, false, false);
+        assert_eq!(low.score, 0);
+        assert!(low.is_low_risk);
+
+        let high = calculate_cisne(true, true, false, false, false, false);
+        assert_eq!(high.score, 4);
+        assert_eq!(high.risk_class, 3);
+    }
+
+    #[test]
+    fn test_meld() {
+        let res = calculate_meld_na(2.0, 1.2, 1.1, 134.0, false).unwrap();
+        assert!(res.meld_na >= 10);
     }
 }

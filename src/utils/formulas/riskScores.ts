@@ -221,3 +221,121 @@ export const masccCalculator: CalculatorDefinition = {
     };
   },
 };
+
+export const cisneCalculator: CalculatorDefinition = {
+  id: 'cisne_score',
+  title: 'CISNE 实体瘤稳定期发热性中性粒细胞减少指数',
+  abbreviation: 'CISNE',
+  category: 'risk',
+  categoryName: '风险与感染',
+  description: '专为实体瘤门诊看似临床稳定的发热伴粒细胞缺乏 (FN) 患者设计的精准危险度分层工具（比 MASCC 更精准识别实体瘤隐匿严重并发症）。',
+  tags: ['CISNE', '粒缺发热', '中性粒细胞', '实体瘤', '感染低危', '门诊抗生素', 'MASCC'],
+  fields: [
+    {
+      id: 'ecog',
+      label: 'ECOG 体能状态 ≥ 2 分',
+      type: 'select',
+      defaultValue: '0',
+      options: [
+        { label: 'ECOG 0 - 1 分 [0 分]', value: '0' },
+        { label: 'ECOG ≥ 2 分 (卧床时间增加) [2 分]', value: '2' },
+      ],
+    },
+    {
+      id: 'hyperglycemia',
+      label: '应激性高血糖 (血糖 ≥ 6.7 mmol/L 或 120 mg/dL)',
+      type: 'select',
+      defaultValue: '0',
+      options: [
+        { label: '无高血糖或正常血糖 [0 分]', value: '0' },
+        { label: '应激性高血糖 (非既往糖尿病基线) [2 分]', value: '2' },
+      ],
+    },
+    {
+      id: 'copd',
+      label: '慢性阻塞性肺疾病 (COPD)',
+      type: 'select',
+      defaultValue: '0',
+      options: [
+        { label: '无慢性肺疾病 [0 分]', value: '0' },
+        { label: '有慢性阻塞性肺病史 [1 分]', value: '1' },
+      ],
+    },
+    {
+      id: 'cardio',
+      label: '慢性心血管疾病 (心衰/严重心律失常/冠心病)',
+      type: 'select',
+      defaultValue: '0',
+      options: [
+        { label: '无心血管慢性病 [0 分]', value: '0' },
+        { label: '有慢性心血管病史 [1 分]', value: '1' },
+      ],
+    },
+    {
+      id: 'mucositis',
+      label: '黏膜炎 (口腔/消化道溃疡) ≥ 2 级 (影响进食)',
+      type: 'select',
+      defaultValue: '0',
+      options: [
+        { label: '无黏膜炎或 1 级 (轻微疼痛可进食) [0 分]', value: '0' },
+        { label: '黏膜炎 ≥ 2 级 (显著溃疡/限制吞咽) [1 分]', value: '1' },
+      ],
+    },
+    {
+      id: 'monocytes',
+      label: '单核细胞绝对计数 (Monocytes) < 0.2 × 10⁹/L',
+      type: 'select',
+      defaultValue: '0',
+      options: [
+        { label: '单核细胞 ≥ 0.2 × 10⁹/L [0 分]', value: '0' },
+        { label: '单核细胞 < 0.2 × 10⁹/L (<200/µL) [1 分]', value: '1' },
+      ],
+    },
+  ],
+  formulaEquation: `\\text{CISNE Score} = \\text{ECOG (2)} + \\text{Hyperglycemia (2)} + \\text{COPD (1)} + \\text{CVD (1)} + \\text{Mucositis (1)} + \\text{Monocytes (1)}`,
+  formulaDescription: '0 分为低危 (I 级，严重并发症率仅 1.1%)，可安全考虑门诊居家口服抗生素；1-2 分为中危 (II 级，并发症率 6.2%)，需密切留观；≥ 3 分为高危 (III 级，并发症率高达 36%)，必须立即住院静脉给药。',
+  references: [
+    'Carmona-Bayonas A, et al. Prediction of serious complications in patients with seemingly stable febrile neutropenia: validation of the Clinical Index of Stable Febrile Neutropenia (CISNE) in a prospective multicenter cohort. J Clin Oncol. 2015;33(5):465-471.',
+  ],
+  calculate: (inputs) => {
+    const score =
+      Number(inputs.ecog) +
+      Number(inputs.hyperglycemia) +
+      Number(inputs.copd) +
+      Number(inputs.cardio) +
+      Number(inputs.mucositis) +
+      Number(inputs.monocytes);
+
+    let riskClass = 'Class I: 低危 (0 分)';
+    let complicationRate = '~1.1%';
+    let badgeType: 'success' | 'warning' | 'danger' | 'info' = 'success';
+    let interp = 'CISNE 0 分：患者发生休克、呼吸衰竭等严重感染并发症概率极低 (~1.1%)。如家庭环境优良且可随时随访，指南允许在门诊口服广谱抗生素（如阿莫西林/克拉维酸钾 + 环丙沙星）。';
+
+    if (score >= 3) {
+      riskClass = 'Class III: 高危 (≥ 3 分)';
+      complicationRate = '~36%';
+      badgeType = 'danger';
+      interp = 'CISNE ≥ 3 分：看似稳定实则极高危！发生严重感染休克或脏器衰竭概率高达 36%！强烈要求收住院，紧急经验性静脉抗假单胞菌广谱抗生素（如哌拉西林他唑巴坦 / 美罗培南）。';
+    } else if (score >= 1) {
+      riskClass = 'Class II: 中危 (1 - 2 分)';
+      complicationRate = '~6.2%';
+      badgeType = 'warning';
+      interp = 'CISNE 1-2 分：属于中度风险人群 (严重并发症率 ~6.2%)。不建议直接放回门诊，建议留观室或急诊短时住院观察静脉滴注抗生素，动态复查。';
+    }
+
+    return {
+      title: `CISNE 分级: ${riskClass}`,
+      value: score,
+      unit: '/ 8分',
+      badge: { text: riskClass.split(':')[1].trim(), type: badgeType },
+      details: [
+        { label: 'CISNE 评分', value: `${score} 分` },
+        { label: '风险层级', value: riskClass },
+        { label: '严重合并症概率', value: complicationRate },
+        { label: '门诊口服抗生素推荐', value: score === 0 ? '符合门诊指征' : '不推荐门诊，需住院/留观' },
+      ],
+      interpretation: interp,
+    };
+  },
+};
+

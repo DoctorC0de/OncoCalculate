@@ -287,3 +287,120 @@ export const gfrCalculator: CalculatorDefinition = {
     };
   },
 };
+
+export const ibwCalculator: CalculatorDefinition = {
+  id: 'ibw_adjbw',
+  title: '理想体重 (IBW) 与校正体重 (AdjBW) 剂量参考',
+  abbreviation: 'IBW / AdjBW',
+  category: 'chemo',
+  categoryName: '化疗与剂量',
+  description: '根据 Devine 经典公式计算理想体重 (IBW)、校正体重 (AdjBW) 与 BMI，指导肥胖肿瘤患者化疗剂量及肾功能评估。',
+  tags: ['IBW', 'AdjBW', '理想体重', '校正体重', 'BMI', '肥胖化疗剂量', 'ASCO指南'],
+  fields: [
+    {
+      id: 'gender',
+      label: '性别',
+      type: 'select',
+      defaultValue: 'male',
+      options: [
+        { label: '男 (Male)', value: 'male' },
+        { label: '女 (Female)', value: 'female' },
+      ],
+    },
+    {
+      id: 'height',
+      label: '身高',
+      type: 'number',
+      defaultValue: 170,
+      defaultUnit: 'cm',
+      units: [
+        { label: 'cm', value: 'cm', toBaseMultiplier: 1 },
+        { label: 'm', value: 'm', toBaseMultiplier: 100 },
+        { label: 'in', value: 'in', toBaseMultiplier: 2.54 },
+      ],
+      min: 50,
+      max: 250,
+      step: 0.5,
+    },
+    {
+      id: 'weight',
+      label: '实际体重 (Actual Weight)',
+      type: 'number',
+      defaultValue: 80,
+      defaultUnit: 'kg',
+      units: [
+        { label: 'kg', value: 'kg', toBaseMultiplier: 1 },
+        { label: 'lb', value: 'lb', toBaseMultiplier: 0.453592 },
+      ],
+      min: 20,
+      max: 300,
+      step: 0.1,
+    },
+  ],
+  formulaEquation: `\\text{IBW (Devine)} = \\text{Base} + 0.9055 \\times (\\text{Height cm} - 152.4); \\quad \\text{AdjBW} = \\text{IBW} + 0.4 \\times (\\text{Actual} - \\text{IBW})`,
+  formulaDescription: 'ASCO 临床指南推荐：对于成人肥胖恶性肿瘤患者，化疗应按全量实际体重 (Actual Weight) 计算剂量，不宜盲目经验性封顶；但估算 Cockcroft-Gault 肾功能时，肥胖患者使用校正体重 AdjBW 可防止过度高估清除率。',
+  references: [
+    'Devine BJ. Gentamicin therapy. Drug Intell Clin Pharm. 1974;8:650-655.',
+    'Griggs JJ, et al. Appropriate Systemic Therapy Dosing for Obese Adult Patients With Cancer: ASCO Guideline Update. J Clin Oncol. 2021;39(18):2037-2048.',
+  ],
+  calculate: (inputs, units) => {
+    const isFemale = inputs.gender === 'female';
+    let heightCm = Number(inputs.height) || 0;
+    if (units.height === 'm') heightCm *= 100;
+    if (units.height === 'in') heightCm *= 2.54;
+
+    let actualKg = Number(inputs.weight) || 0;
+    if (units.weight === 'lb') actualKg *= 0.453592;
+
+    if (heightCm <= 0 || actualKg <= 0) {
+      return { title: '体重剂量参考', value: '--', unit: 'kg' };
+    }
+
+    // Devine IBW
+    const baseIbw = isFemale ? 45.5 : 50.0;
+    const ibw = heightCm > 152.4 ? baseIbw + 0.9055 * (heightCm - 152.4) : baseIbw;
+
+    // Adjusted Body Weight (AdjBW)
+    const isOverweight = actualKg > 1.2 * ibw;
+    const adjBw = ibw + 0.4 * (actualKg - ibw);
+
+    // BMI
+    const heightM = heightCm / 100;
+    const bmi = actualKg / (heightM * heightM);
+    const weightToIbwRatio = (actualKg / ibw) * 100;
+
+    let status = '体重正常 (IBW ± 20%)';
+    let badgeType: 'success' | 'warning' | 'danger' | 'info' = 'success';
+    let interp = '实际体重与理想体重接近。化疗给药及肌酐清除率计算均可直接采用实际体重。';
+
+    if (actualKg < 0.9 * ibw) {
+      status = '体重偏轻 (< 90% IBW)';
+      badgeType = 'info';
+      interp = '患者偏瘦或存在肿瘤恶病质消瘦，化疗剂量建议使用实际体重，并密切关注耐受性与营养支持。';
+    } else if (weightToIbwRatio > 130 || bmi >= 30) {
+      status = '肥胖 (Actual > 130% IBW 或 BMI≥30)';
+      badgeType = 'warning';
+      interp = `实际体重超标 (${weightToIbwRatio.toFixed(0)}% IBW, BMI ${bmi.toFixed(1)})。根据 ASCO 指南：化疗体表面积 (BSA) 计算仍建议以【实际体重 ${actualKg.toFixed(1)} kg】全量给药；而在 Cockcroft-Gault 肾功能肌酐清除率估算时，建议采用【校正体重 AdjBW ${adjBw.toFixed(1)} kg】以防过量！`;
+    } else if (isOverweight) {
+      status = '超重 (120% - 130% IBW)';
+      badgeType = 'info';
+      interp = `患者轻中度超重 (${weightToIbwRatio.toFixed(0)}% IBW)。常规化疗建议采用实际体重，肌酐清除率可对照实际体重与校正体重 ${adjBw.toFixed(1)} kg。`;
+    }
+
+    return {
+      title: isOverweight ? `校正体重: ${adjBw.toFixed(1)} kg` : `理想体重: ${ibw.toFixed(1)} kg`,
+      value: (isOverweight ? adjBw : ibw).toFixed(1),
+      unit: 'kg',
+      badge: { text: status, type: badgeType },
+      details: [
+        { label: '理想体重 (IBW)', value: `${ibw.toFixed(1)} kg` },
+        { label: '校正体重 (AdjBW 0.4)', value: `${adjBw.toFixed(1)} kg` },
+        { label: '实际体重 (Actual)', value: `${actualKg.toFixed(1)} kg` },
+        { label: '体质指数 (BMI)', value: `${bmi.toFixed(1)} kg/m²` },
+        { label: '实际体重 / 理想体重比', value: `${weightToIbwRatio.toFixed(1)} %` },
+      ],
+      interpretation: interp,
+    };
+  },
+};
+

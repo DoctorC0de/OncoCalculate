@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -20,16 +21,16 @@ export default {
           900: '#0a3c5c',
         },
         surface: {
-          DEFAULT: '#111827',
-          dim: '#0a0f1a',
-          container: '#1a2236',
-          'container-high': '#222d42',
-          'container-highest': '#2a364d',
-          bright: '#f8fafc',
+          DEFAULT: 'var(--color-surface, #111827)',
+          dim: 'var(--color-surface-dim, #0a0f1a)',
+          container: 'var(--color-surface-container, #1a2236)',
+          'container-high': 'var(--color-surface-container-high, #222d42)',
+          'container-highest': 'var(--color-surface-container-highest, #2a364d)',
+          bright: 'var(--color-surface-bright, #f8fafc)',
         },
         on: {
-          surface: '#e2e8f0',
-          'surface-variant': '#94a3b8',
+          surface: 'var(--color-on-surface, #e2e8f0)',
+          'surface-variant': 'var(--color-on-surface-variant, #94a3b8)',
           primary: '#ffffff',
         }
       },

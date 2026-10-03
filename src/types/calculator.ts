@@ -23,6 +23,11 @@ export interface OptionChoice {
   description?: string;
 }
 
+export interface PresetChoice {
+  label: string;
+  value: number | string;
+}
+
 export interface FieldDefinition {
   id: string;
   label: string;
@@ -32,6 +37,7 @@ export interface FieldDefinition {
   defaultUnit?: string;
   units?: UnitOption[];
   options?: OptionChoice[];
+  presets?: PresetChoice[];
   min?: number;
   max?: number;
   step?: number;
@@ -74,4 +80,14 @@ export interface HistoryItem {
   inputs: Record<string, any>;
   units: Record<string, string>;
   result: CalculationResult;
+}
+
+export interface PatientProfile {
+  name?: string;
+  gender: 'male' | 'female';
+  age?: number;
+  heightCm?: number;
+  weightKg?: number;
+  scrUmol?: number;
+  isConfigured?: boolean;
 }

@@ -1,27 +1,34 @@
 import { CalculatorDefinition, CategoryType } from '../../types/calculator';
-import { bsaCalculator, calvertCalculator, gfrCalculator } from './chemo';
+import { bsaCalculator, calvertCalculator, gfrCalculator, ibwCalculator } from './chemo';
 import { ancCalculator, correctedCalciumCalculator } from './hematology';
 import { recistCalculator, doublingTimeCalculator } from './recist';
-import { albiCalculator, childPughCalculator } from './organ';
-import { khoranaCalculator, masccCalculator } from './riskScores';
+import { albiCalculator, childPughCalculator, meldCalculator } from './organ';
+import { khoranaCalculator, masccCalculator, cisneCalculator } from './riskScores';
 import { opioidCalculator, steroidCalculator } from './conversions';
-import { ipiCalculator, imdcCalculator } from './staging';
+import { ipiCalculator, imdcCalculator, flipiCalculator, rissCalculator } from './staging';
+import { ecogKpsCalculator } from './performance';
 
 export const allCalculators: CalculatorDefinition[] = [
   bsaCalculator,
   calvertCalculator,
   gfrCalculator,
+  ibwCalculator,
   ancCalculator,
   correctedCalciumCalculator,
   recistCalculator,
   doublingTimeCalculator,
   albiCalculator,
   childPughCalculator,
+  meldCalculator,
   khoranaCalculator,
   masccCalculator,
+  cisneCalculator,
   opioidCalculator,
   steroidCalculator,
+  ecogKpsCalculator,
   ipiCalculator,
+  flipiCalculator,
+  rissCalculator,
   imdcCalculator,
 ];
 

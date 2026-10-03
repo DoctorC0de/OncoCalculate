@@ -19,14 +19,16 @@
 
 ## ✨ 功能特性
 
-- 🏥 **全中文界面** — 中文临床术语、公式说明与分级指导，保留国际通用缩写（BSA, AUC, RECIST 等）
-- 📐 **SI 国际标准单位** — 默认采用国际标准单位（μmol/L, g/L, mmol/L），支持一键切换传统单位
-- 🎨 **Material 3 深色主题** — Android 原生风格 UI 设计，沉浸式深色医疗主题
-- ⚡ **Rust 核心计算引擎** — 核心公式由 Pure Rust 编写，保障数值精度，毫秒级运算
-- 📱 **完全离线运行** — 零网络依赖，不收集任何患者数据，100% 本地隐私安全
-- ⭐ **收藏与历史** — 常用公式一键收藏，自动记录计算历史
-- 🔍 **智能搜索** — 支持按名称、缩写、关键词搜索与分类筛选
-- 📋 **一键复制结果** — 计算结果一键复制，方便粘贴至病历或报告
+- 🏥 **全中文界面** — 纯正中文临床术语、公式说明与权威分级指南，保留国际通用缩写（BSA, AUC, ECOG, RECIST 等）
+- 📐 **SI 国际标准单位** — 默认优先国际标准单位（μmol/L, g/L, mmol/L），并支持一键无缝双向切换传统临床单位（mg/dL, g/dL）
+- 🎨 **Material 3 双主题** — 清新明亮（Light Mode 查房模式）与深邃护眼（Dark Mode 夜间模式）随心一键切换
+- ⚡ **Pure Rust 核心计算引擎** — 核心数学公式由 Rust 编写，彻底解决前端浮点误差，毫秒级快速运算
+- 👤 **患者档案跨公式联动** — 录入一次患者基本生理参数（性别、年龄、身高、体重、肌酐），各计算器自动同步预填，杜绝繁琐重复输入
+- 📝 **规范化病历小结一键生成** — 自动排版标准 EMR 临床小结，支持一键复制到剪贴板或系统原生分享
+- 📱 **完全离线隐私安全** — 零网络依赖，零外部数据埋点，不采集任何患者个人隐私，100% 本地运算
+- ⏳ **历史记录深度还原** — 记录每次计算的输入快照与单位，点击即可完全还原历史患者数据
+- 🔍 **智能搜索与分类检索** — 支持名称、拼音缩写、临床标签搜索与横向分类筛选
+- 🔢 **便捷参数微调与预设** — 数字输入框配备步进微调按钮 (`-` / `+`) 及常用参数快速预设 Chips
 
 ---
 
@@ -40,57 +42,63 @@
 
 ---
 
-## 📋 包含计算公式
+## 📋 包含计算公式 (共 21 项)
 
 ### 💊 化疗与剂量计算
 
-| 公式 | 说明 |
-|------|------|
-| **体表面积 BSA** | Mosteller / Du Bois / Haycock / Gehan / Boyd 五种公式对比 |
-| **卡铂 Calvert 公式** | Target AUC × (GFR + 25)，靶浓度 AUC 给药剂量计算 |
-| **肾小球滤过率 GFR** | Cockcroft-Gault / CKD-EPI 肌酐清除率估算 |
+| 公式 | 缩写 | 说明与临床意义 |
+|------|------|----------------|
+| **体表面积计算器** | BSA | Mosteller / Du Bois / Haycock / Gehan / Boyd 五大经典公式比对 |
+| **卡铂 Calvert 公式** | Calvert | Target AUC × (GFR + 25)，125 mL/min 上限自动封顶保护 |
+| **肾小球滤过率** | GFR / CrCl | Cockcroft-Gault 肌酐清除率 & CKD-EPI 2021 eGFR 评估 |
+| **理想体重与校正体重** | IBW / AdjBW | Devine 公式与 BMI 计算，指导成人肥胖肿瘤患者化疗剂量调整 (ASCO) |
 
 ### 🩸 血液毒性与血钙
 
-| 公式 | 说明 |
-|------|------|
-| **中性粒细胞绝对计数 ANC** | WBC × (%Segs + %Bands)，CTCAE v5.0 毒性分级 (1-4 级) |
-| **校正血钙** | 低白蛋白血症校正钙浓度，肿瘤高钙血症评估 |
+| 公式 | 缩写 | 说明与临床意义 |
+|------|------|----------------|
+| **中性粒细胞绝对计数** | ANC | WBC × (%Segs + %Bands)，匹配 CTCAE v5.0 粒细胞减少 1-4 级分级 |
+| **校正血钙浓度** | Corr Ca | 纠正低白蛋白血症伪低钙，准确评估肿瘤相关高钙血症危象 |
 
 ### 📊 实体瘤疗效评价
 
-| 公式 | 说明 |
-|------|------|
-| **RECIST 1.1** | 靶病灶 SLD 比对基线/最小值，自动判定 CR/PR/SD/PD |
-| **肿瘤倍增时间 & 比生长速率** | 两次测量间肿瘤体积增长动力学分析 |
+| 公式 | 缩写 | 说明与临床意义 |
+|------|------|----------------|
+| **实体瘤疗效评估器** | RECIST 1.1 | 靶病灶最长径之和 (SLD) 比对基线与最小值，自动判定 CR / PR / SD / PD |
+| **肿瘤倍增时间** | DT / SGR | 两次影像测量间肿瘤体积倍增动力学与特定生长速率分析 |
 
 ### 🫁 肝肾与器官功能
 
-| 公式 | 说明 |
-|------|------|
-| **ALBI 评分** | 白蛋白-胆红素肝功能分级 (Grade 1-3) |
-| **Child-Pugh 评分** | 肝硬化严重程度分级 (A/B/C 级) |
+| 公式 | 缩写 | 说明与临床意义 |
+|------|------|----------------|
+| **ALBI 肝功能分级** | ALBI | 白蛋白-胆红素客观评分，原发性肝癌 (HCC) 专用储备评估 (Grade 1-3) |
+| **Child-Pugh 评分** | Child-Pugh | 经典肝硬化代偿分级 (Class A / B / C)，抗肿瘤靶向药耐受评估 |
+| **终末期肝病模型** | MELD-Na | UNOS 标准加权血钠 MELD 评分，评估肝衰竭及 90 天病死率预测 |
 
-### ⚠️ 风险评估
+### ⚠️ 风险与感染评估
 
-| 公式 | 说明 |
-|------|------|
-| **Khorana VTE 评分** | 化疗相关静脉血栓栓塞风险分层 |
-| **MASCC 评分** | 粒细胞缺乏伴发热风险评估（低危/高危） |
+| 公式 | 缩写 | 说明与临床意义 |
+|------|------|----------------|
+| **肿瘤相关血栓风险** | Khorana | 评估门诊实体瘤患者化疗相关静脉血栓栓塞 (VTE) 风险层级 |
+| **粒缺发热风险指数** | MASCC | 评估发热性中性粒细胞减少 (FN) 患者严重并发症风险及门诊口服抗生素指征 |
+| **稳定期粒缺发热指数** | CISNE | 专为实体瘤稳定期粒缺发热设计，比 MASCC 更精准识别隐匿严重感染并发症 |
 
 ### 💊 药物与单位换算
 
-| 公式 | 说明 |
-|------|------|
-| **MEDD 阿片类等效剂量** | 吗啡、羟考酮、芬太尼贴剂等阿片类药物等效换算 |
-| **糖皮质激素等效换算** | 泼尼松、地塞米松、甲泼尼龙等效剂量换算 |
+| 公式 | 缩写 | 说明与临床意义 |
+|------|------|----------------|
+| **阿片类等效剂量换算** | MEDD | 吗啡、羟考酮、芬太尼透皮贴等阿片类止痛药等效换算及不完全交叉耐受减量 |
+| **糖皮质激素等效换算** | Steroid | 地塞米松、泼尼松、甲泼尼龙、氢化可的松等抗炎水肿剂量换算 |
 
 ### 📈 预后分期与评分
 
-| 公式 | 说明 |
-|------|------|
-| **IPI 国际预后指数** | 非霍奇金淋巴瘤预后分组 |
-| **IMDC 评分** | 转移性肾细胞癌预后风险分层 |
+| 公式 | 缩写 | 说明与临床意义 |
+|------|------|----------------|
+| **体能状态双向评分** | ECOG / KPS | 国际肿瘤学标准体能状态评定，化疗耐受门槛判定与临床处方指导 |
+| **弥漫大B细胞淋巴瘤预后** | IPI / R-IPI | 经典 IPI 及利妥昔单抗时代 R-IPI 侵袭性淋巴瘤预后分层 |
+| **滤泡性淋巴瘤预后** | FLIPI | 国际滤泡性淋巴瘤预后评分系统与预计 10 年总生存率 |
+| **多发性骨髓瘤修订分期** | R-ISS | 整合 ISS 分期、高危细胞遗传学 (iFISH) 与 LDH 的金标准模型 |
+| **晚期肾细胞癌模型** | IMDC | 转移性透明细胞肾细胞癌 (mRCC) 预后危险度分层与一线靶免用药指导 |
 
 ---
 
@@ -98,54 +106,57 @@
 
 ```
 OncoCalculate
-├── src/                    # 前端 React 应用
-│   ├── components/         # Material 3 UI 组件
-│   │   ├── Header.tsx          # 顶部应用栏 + 搜索
-│   │   ├── BottomTabBar.tsx    # 底部导航栏
-│   │   ├── CalculatorCard.tsx  # 公式列表卡片
-│   │   ├── CalculatorDetailPage.tsx  # 计算详情页
-│   │   ├── CategoryNav.tsx     # 分类筛选 Chips
-│   │   └── AboutPage.tsx       # 关于页面
-│   ├── utils/formulas/     # 计算公式引擎
-│   │   ├── chemo.ts            # BSA, Calvert, GFR
-│   │   ├── hematology.ts       # ANC, 校正血钙
-│   │   ├── recist.ts           # RECIST 1.1, 倍增时间
-│   │   ├── organ.ts            # ALBI, Child-Pugh
-│   │   ├── riskScores.ts       # Khorana, MASCC
-│   │   ├── conversions.ts      # MEDD, 糖皮质激素
-│   │   └── staging.ts          # IPI, IMDC
-│   └── types/              # TypeScript 类型定义
-├── src-rust/               # Rust 核心计算模块
-├── android/                # Android 原生壳 (Capacitor)
-├── tailwind.config.js      # Tailwind CSS 主题配置
-└── capacitor.config.json   # Capacitor 配置
+├── src/                    # 现代化 React 前端
+│   ├── components/         # Material 3 原生触控组件
+│   │   ├── Header.tsx            # 顶部应用栏 + 主题切换 + 档案入口
+│   │   ├── BottomTabBar.tsx      # 底部导航栏 (Pill 指示器)
+│   │   ├── CalculatorCard.tsx    # 列表卡片 (分类色彩标 + 标签)
+│   │   ├── CalculatorDetailPage.tsx # 计算详情页 (步进器 + 预设Chips)
+│   │   ├── CategoryNav.tsx       # 分类筛选 Chips
+│   │   ├── PatientProfileModal.tsx # 患者档案跨公式联动弹窗
+│   │   ├── EMRNoteModal.tsx      # 规范化病历小结一键导出弹窗
+│   │   ├── Snackbar.tsx          # 胶囊浮条 Toast 反馈
+│   │   └── AboutPage.tsx         # 关于与指南
+│   ├── context/            # 全局状态管理
+│   │   └── ThemeContext.tsx      # Material 3 Light/Dark 主题上下文
+│   ├── utils/formulas/     # 21 项肿瘤临床公式算法库
+│   │   ├── chemo.ts              # BSA, Calvert, GFR, IBW/AdjBW
+│   │   ├── hematology.ts         # ANC, 校正血钙
+│   │   ├── recist.ts             # RECIST 1.1, 倍增时间
+│   │   ├── organ.ts              # ALBI, Child-Pugh, MELD-Na
+│   │   ├── riskScores.ts         # Khorana, MASCC, CISNE
+│   │   ├── conversions.ts        # MEDD, 糖皮质激素
+│   │   ├── performance.ts        # ECOG / KPS
+│   │   └── staging.ts            # IPI, FLIPI, R-ISS, IMDC
+│   └── types/              # TypeScript 强类型定义
+├── src-rust/               # Pure Rust 核心计算引擎 (带自动化单元测试)
+├── android/                # Android 原生包装工程 (Capacitor 5)
+├── tailwind.config.js      # Tailwind CSS + Material 3 主题配置
+└── capacitor.config.json   # 移动端运行时配置
 ```
-
-**技术栈：**
-- **前端框架**：React 18 + TypeScript + Vite
-- **UI 设计**：Tailwind CSS (Material 3 深色主题)
-- **计算引擎**：Rust (via WASM)
-- **移动端打包**：Capacitor 5 → Android APK
-- **图标库**：Lucide React
 
 ---
 
-## 🏗 本地开发
+## 🏗 本地构建与开发
 
 ```bash
-# 安装依赖
+# 1. 安装依赖
 npm install
 
-# 启动开发服务器
+# 2. 运行自动化测试
+npm run test         # 运行 Vitest 测试 (14 个核心测试套件)
+cd src-rust && cargo test # 运行 Rust 核心算法测试
+
+# 3. 启动本地开发服务器
 npm run dev
 
-# 生产构建
+# 4. 生产构建打包
 npm run build
 
-# 同步到 Android 项目
+# 5. 同步至 Android 原生项目
 npx cap sync android
 
-# 编译 APK (需要 JDK 17 + Android SDK)
+# 6. 编译生成 Android APK (需要 JDK 17 及 Android SDK)
 cd android && ./gradlew assembleDebug
 ```
 
@@ -153,18 +164,18 @@ cd android && ./gradlew assembleDebug
 
 ## ⚠️ 医疗免责声明
 
-> **本应用程序仅供肿瘤科执业医师、药师与科研人员参考。**
+> **本应用程序仅供肿瘤科执业医师、临床药师与医学科研人员学术与诊疗参考。**
 >
-> 计算结果不能替代专业医师的临床判断。在行化疗给药或开具处方前，请务必根据具体临床情况与药品说明书再次复核。开发者不对因使用本工具产生的任何医疗决策后果承担责任。
+> 测算结果不能替代执业医师的专业临床判断。在行化疗药物开具或处方调整前，请务必根据具体临床情况、患者器官储备及最新药品说明书再次核验。开发者对任何依据本工具计算结果所做出的临床决策后果不承担任何法律责任。
 
 ---
 
 ## 📄 开源许可
 
-本项目采用 [MIT License](LICENSE) 开源。
+本项目遵循 [MIT License](LICENSE) 开源协议。
 
 ---
 
 <div align="center">
-<sub>Made with ❤️ for Oncology Clinicians</sub>
+<sub>Designed with ❤️ for Oncology Clinicians and Researchers</sub>
 </div>

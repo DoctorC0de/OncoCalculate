@@ -1,7 +1,7 @@
 {
   "name": "oncocalculate",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -18,7 +18,6 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "3": "^0.0.1-security",
     "@capacitor/android": "^5.7.0",
     "@capacitor/cli": "^5.7.0",
     "@capacitor/core": "^5.7.0",
