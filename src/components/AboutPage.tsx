@@ -6,8 +6,8 @@ export const AboutPage: React.FC = () => {
     <div className="px-4 py-4 pb-28 space-y-4 animate-fade-in max-w-4xl mx-auto">
       {/* App Header Card */}
       <div className="m3-card p-6 text-center space-y-3">
-        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center mx-auto shadow-lg shadow-sky-500/25">
-          <Activity className="w-7 h-7 text-white" />
+        <div className="w-16 h-16 rounded-2xl overflow-hidden mx-auto shadow-xl shadow-sky-500/25 border border-white/10 bg-surface-container">
+          <img src="/icon.png" alt="OncoCalculate Logo" className="w-full h-full object-cover" />
         </div>
         <h1 className="text-xl font-extrabold text-white">OncoCalculate 肿瘤医学计算器</h1>
         <p className="text-[11px] text-sky-400 font-bold uppercase tracking-wider">
